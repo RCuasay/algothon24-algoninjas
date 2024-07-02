@@ -19,13 +19,14 @@ def getMyPosition(prcSoFar):
     prcSoFar = pd.DataFrame(prcSoFar)
     
     # Calculate the Exponential Moving Average (EMA)
-    ema = prcSoFar.ewm(span=50, adjust=False).mean()
+    ema = prcSoFar.ewm(span=200, adjust=False).mean()
     
     # Generate trading positions based on the sign of (price - EMA)
     tradingPositions = (prcSoFar - ema).apply(np.sign)
     
     # Latest trading positions
     latestTradingPositions = tradingPositions.iloc[:, -1]
+    latestTradingPositions = (latestTradingPositions * 500 / prcSoFar.iloc[:, -1]).astype(int)
     
     # Update current positions
     currentPos = latestTradingPositions.to_numpy()
