@@ -1,4 +1,2 @@
-The packages in algoNinjas.py are
-- numpy
-- pandas
-which are included in the Anaconda distribution.
+numpy
+pandas
