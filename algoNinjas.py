@@ -19,11 +19,11 @@ def getMyPosition(prcSoFar):
     ema = prcSoFar.ewm(span=20, adjust=False).mean()
     
     # Generate trading positions based on the sign of (price - EMA)
-    tradingPositions = (prcSoFar - ema).apply(np.sign)
+    tradingPositions = (prcSoFar - ema).apply(np.sign) * 300
     
     # Latest trading positions
     latestTradingPositions = tradingPositions.iloc[:, -1]
-    latestTradingPositions = (latestTradingPositions * 300 / prcSoFar.iloc[:, -1]).astype(int)
+    latestTradingPositions = (latestTradingPositions / prcSoFar.iloc[:, -1]).astype(int)
     
     # Update current positions
     currentPos = latestTradingPositions.to_numpy()
