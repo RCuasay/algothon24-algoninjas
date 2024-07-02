@@ -26,7 +26,7 @@ def getMyPosition(prcSoFar):
     
     # Latest trading positions
     latestTradingPositions = tradingPositions.iloc[:, -1]
-    latestTradingPositions = (latestTradingPositions * 500 / prcSoFar.iloc[:, -1]).astype(int)
+    latestTradingPositions = (latestTradingPositions * 300 / prcSoFar.iloc[:, -1]).astype(int)
     
     # Update current positions
     currentPos = latestTradingPositions.to_numpy()
