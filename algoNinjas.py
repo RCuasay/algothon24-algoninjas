@@ -4,7 +4,7 @@ import pandas as pd
 nInst = 50
 currentPos = np.zeros(nInst)
 
-def calculate_atr(prcSoFar, window=14):
+def calculate_atr(prcSoFar, window=20):
     high = prcSoFar.max(axis=1)
     low = prcSoFar.min(axis=1)
     close = prcSoFar[:, -1]
@@ -32,6 +32,6 @@ def getMyPosition(prcSoFar):
     # Volatility-based position sizing
     position_size = (portfolio_equity * risk_per_trade) / atr
     
-    currentPos = (latestTradingPositions * position_size).astype(int)
+    currentPos += (((latestTradingPositions * position_size) - currentPos) * 0.01).astype(int)
     
     return currentPos
