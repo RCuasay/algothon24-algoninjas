@@ -1,31 +1,17 @@
 import numpy as np
 import pandas as pd
 
-##### TODO #########################################
-### RENAME THIS FILE TO YOUR TEAM NAME #############
-### IMPLEMENT 'getMyPosition' FUNCTION #############
-### TO RUN, RUN 'eval.py' ##########################
-
 nInst = 50
 currentPos = np.zeros(nInst)
 
 def getMyPosition(prcSoFar):
     global currentPos
-    
-    # Convert prcSoFar to DataFrame for easier manipulation
-    prcSoFar = pd.DataFrame(prcSoFar)
-    
-    # Calculate the Exponential Moving Average (EMA)
-    ema = prcSoFar.ewm(span=20, adjust=False).mean()
-    
-    # Generate trading positions based on the sign of (price - EMA)
-    tradingPositions = (prcSoFar - ema).apply(np.sign) * 300
-    
-    # Latest trading positions
-    latestTradingPositions = tradingPositions.iloc[:, -1]
-    latestTradingPositions = (latestTradingPositions / prcSoFar.iloc[:, -1]).astype(int)
-    
-    # Update current positions
-    currentPos = latestTradingPositions.to_numpy()
-    
+    (nins, nt) = prcSoFar.shape
+    if (nt < 2):
+        return np.zeros(nins)
+    lastRet = np.log(prcSoFar[:, -1] / prcSoFar[:, -2])
+    lNorm = np.sqrt(lastRet.dot(lastRet))
+    lastRet /= lNorm
+    rpos = np.array([int(x) for x in 5000 * lastRet / prcSoFar[:, -1]])
+    currentPos = np.array([int(x) for x in currentPos+rpos])
     return currentPos

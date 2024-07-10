@@ -4,7 +4,7 @@ import pandas as pd
 nInst = 50
 currentPos = np.zeros(nInst)
 
-def calculate_atr(prcSoFar, window=14):
+def calculate_atr(prcSoFar, window=20):
     high = prcSoFar.max(axis=1)
     low = prcSoFar.min(axis=1)
     close = prcSoFar[:, -1]
@@ -13,7 +13,7 @@ def calculate_atr(prcSoFar, window=14):
     atr = pd.Series(tr).rolling(window=window, min_periods=1).mean().values
     return atr
 
-def calculate_rsi(prcSoFar, window=14):
+def calculate_rsi(prcSoFar, window=20):
     delta = np.diff(prcSoFar, axis=1)
     gain = np.maximum(delta, 0)
     loss = -np.minimum(delta, 0)
@@ -36,7 +36,7 @@ def getMyPosition(prcSoFar):
     initialPrices = prcSoFar[:, 0]
     
     prcSoFar_df = pd.DataFrame(prcSoFar)
-    ema = prcSoFar_df.ewm(span=20, adjust=False).mean()
+    ema = prcSoFar_df.ewm(span=30, adjust=False).mean()
     tradingPositions = (prcSoFar_df - ema).apply(np.sign)
     latestTradingPositions = tradingPositions.iloc[:, -1].to_numpy()
     
