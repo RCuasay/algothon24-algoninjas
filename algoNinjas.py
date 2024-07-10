@@ -57,9 +57,9 @@ def getMyPosition(prcSoFar):
     oversold_threshold = 30
 
     # Adjust positions based on RSI
-    position_adjustment = np.where((latest_rsi > overbought_threshold) | (latest_rsi < oversold_threshold), 0.5, 1)
+    position_adjustment = np.where((latest_rsi > overbought_threshold) | (latest_rsi < oversold_threshold), 1, 0.5)
 
-    smoothing_factor = 0.01
+    smoothing_factor = 0.005
     
     currentPos += (((latestTradingPositions * position_size * position_adjustment) - currentPos) * smoothing_factor).astype(int)
 
@@ -70,8 +70,4 @@ def getMyPosition(prcSoFar):
             stop_price = initialPrices[i] * (1 - stop_loss_percentage)
             if prcSoFar[i, -1] <= stop_price:
                 currentPos[i] = 0  # Exit long position
-        elif currentPos[i] < 0:
-            stop_price = initialPrices[i] * (1 + stop_loss_percentage)
-            if prcSoFar[i, -1] >= stop_price:
-                currentPos[i] = 0  # Exit short position
     return currentPos
