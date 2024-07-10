@@ -13,6 +13,19 @@ def calculate_atr(prcSoFar, window=20):
     atr = pd.Series(tr).rolling(window=window, min_periods=1).mean().values
     return atr
 
+def calculate_rsi(prcSoFar, window=14):
+    delta = np.diff(prcSoFar, axis=1)
+    gain = np.maximum(delta, 0)
+    loss = -np.minimum(delta, 0)
+    
+    # Transpose before rolling, then transpose back
+    avg_gain = pd.DataFrame(gain.T).rolling(window=window).mean().to_numpy().T
+    avg_loss = pd.DataFrame(loss.T).rolling(window=window).mean().to_numpy().T
+    
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    return np.hstack([np.zeros((nInst, 1)), rsi])  # Pad with zeros for alignment
+
 def getMyPosition(prcSoFar):
     global currentPos, initialPrices
     
@@ -32,7 +45,20 @@ def getMyPosition(prcSoFar):
     
     # Volatility-based position sizing
     position_size = (portfolio_equity * risk_per_trade) / atr
+
+    # Calculate RSI
+    rsi = calculate_rsi(prcSoFar)
+    latest_rsi = rsi[:, -1]
     
-    currentPos += (((latestTradingPositions * position_size) - currentPos) * 0.01).astype(int)
+    # Define RSI thresholds
+    overbought_threshold = 70
+    oversold_threshold = 30
+
+    # Adjust positions based on RSI
+    position_adjustment = np.where((latest_rsi > overbought_threshold) | (latest_rsi < oversold_threshold), 0.5, 1)
+
+    smoothing_factor = 0.01
+    
+    currentPos += (((latestTradingPositions * position_size * position_adjustment) - currentPos) * smoothing_factor).astype(int)
     
     return currentPos
