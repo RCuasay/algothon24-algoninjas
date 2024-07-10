@@ -14,7 +14,8 @@ def calculate_atr(prcSoFar, window=20):
     return atr
 
 def getMyPosition(prcSoFar):
-    global currentPos
+    global currentPos, initialPrices
+    
     (nins, nt) = prcSoFar.shape
     if nt < 2:
         return np.zeros(nins)
