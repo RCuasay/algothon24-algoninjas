@@ -1,31 +1,37 @@
 import numpy as np
 import pandas as pd
 
-##### TODO #########################################
-### RENAME THIS FILE TO YOUR TEAM NAME #############
-### IMPLEMENT 'getMyPosition' FUNCTION #############
-### TO RUN, RUN 'eval.py' ##########################
-
 nInst = 50
 currentPos = np.zeros(nInst)
 
+def calculate_atr(prcSoFar, window=14):
+    high = prcSoFar.max(axis=1)
+    low = prcSoFar.min(axis=1)
+    close = prcSoFar[:, -1]
+    
+    tr = np.maximum(high - low, np.maximum(abs(high - close), abs(low - close)))
+    atr = pd.Series(tr).rolling(window=window, min_periods=1).mean().values
+    return atr
+
 def getMyPosition(prcSoFar):
     global currentPos
+    (nins, nt) = prcSoFar.shape
+    if nt < 2:
+        return np.zeros(nins)
     
-    # Convert prcSoFar to DataFrame for easier manipulation
-    prcSoFar = pd.DataFrame(prcSoFar)
+    prcSoFar_df = pd.DataFrame(prcSoFar)
+    ema = prcSoFar_df.ewm(span=15, adjust=False).mean()
+    tradingPositions = (prcSoFar_df - ema).apply(np.sign)
+    latestTradingPositions = tradingPositions.iloc[:, -1].to_numpy()
     
-    # Calculate the Exponential Moving Average (EMA)
-    ema = prcSoFar.ewm(span=20, adjust=False).mean()
+    # Calculate ATR for volatility-based position sizing
+    atr = calculate_atr(prcSoFar)
+    portfolio_equity = 10000 * 50  # Example portfolio equity
+    risk_per_trade = 0.01  # Adjusted to 0.2% of portfolio per trade (more conservative)
     
-    # Generate trading positions based on the sign of (price - EMA)
-    tradingPositions = (prcSoFar - ema).apply(np.sign) * 300
+    # Volatility-based position sizing
+    position_size = (portfolio_equity * risk_per_trade) / atr
     
-    # Latest trading positions
-    latestTradingPositions = tradingPositions.iloc[:, -1]
-    latestTradingPositions = (latestTradingPositions / prcSoFar.iloc[:, -1]).astype(int)
-    
-    # Update current positions
-    currentPos = latestTradingPositions.to_numpy()
+    currentPos = (latestTradingPositions * position_size).astype(int)
     
     return currentPos
