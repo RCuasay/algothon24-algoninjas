@@ -64,7 +64,7 @@ def getMyPosition(prcSoFar):
     currentPos += (((latestTradingPositions * position_size * position_adjustment) - currentPos) * smoothing_factor).astype(int)
 
     # Apply trailing stop-loss
-    stop_loss_percentage = 0.01  # 1% stop-loss
+    stop_loss_percentage = 0.02  # 2% stop-loss
     for i in range(nInst):
         if currentPos[i] > 0:
             stop_price = initialPrices[i] * (1 - stop_loss_percentage)
