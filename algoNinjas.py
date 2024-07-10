@@ -13,14 +13,14 @@ def calculate_atr(prcSoFar, window=20):
     atr = pd.Series(tr).rolling(window=window, min_periods=1).mean().values
     return atr
 
-def calculate_rsi(prcSoFar, window=14):
+def calculate_rsi(prcSoFar, window=20):
     delta = np.diff(prcSoFar, axis=1)
     gain = np.maximum(delta, 0)
     loss = -np.minimum(delta, 0)
     
     # Transpose before rolling, then transpose back
-    avg_gain = pd.DataFrame(gain.T).rolling(window=window).mean().to_numpy().T
-    avg_loss = pd.DataFrame(loss.T).rolling(window=window).mean().to_numpy().T
+    avg_gain = pd.DataFrame(gain).rolling(window=window).mean().to_numpy()
+    avg_loss = pd.DataFrame(loss).rolling(window=window).mean().to_numpy()
     
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
