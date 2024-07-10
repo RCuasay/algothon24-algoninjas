@@ -20,14 +20,14 @@ def getMyPosition(prcSoFar):
         return np.zeros(nins)
     
     prcSoFar_df = pd.DataFrame(prcSoFar)
-    ema = prcSoFar_df.ewm(span=15, adjust=False).mean()
+    ema = prcSoFar_df.ewm(span=20, adjust=False).mean()
     tradingPositions = (prcSoFar_df - ema).apply(np.sign)
     latestTradingPositions = tradingPositions.iloc[:, -1].to_numpy()
     
     # Calculate ATR for volatility-based position sizing
     atr = calculate_atr(prcSoFar)
-    portfolio_equity = 10000 * 50  # Example portfolio equity
-    risk_per_trade = 0.01  # Adjusted to 0.2% of portfolio per trade (more conservative)
+    portfolio_equity = 10000 * 50  # Portfolio equity
+    risk_per_trade = 0.01  # Adjusted to 1% of portfolio per trade
     
     # Volatility-based position sizing
     position_size = (portfolio_equity * risk_per_trade) / atr
