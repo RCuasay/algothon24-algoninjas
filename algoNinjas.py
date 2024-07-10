@@ -4,7 +4,7 @@ import pandas as pd
 nInst = 50
 currentPos = np.zeros(nInst)
 
-def calculate_atr(prcSoFar, window=20):
+def calculate_atr(prcSoFar, window=14):
     high = prcSoFar.max(axis=1)
     low = prcSoFar.min(axis=1)
     close = prcSoFar[:, -1]
@@ -13,7 +13,7 @@ def calculate_atr(prcSoFar, window=20):
     atr = pd.Series(tr).rolling(window=window, min_periods=1).mean().values
     return atr
 
-def calculate_rsi(prcSoFar, window=20):
+def calculate_rsi(prcSoFar, window=14):
     delta = np.diff(prcSoFar, axis=1)
     gain = np.maximum(delta, 0)
     loss = -np.minimum(delta, 0)
