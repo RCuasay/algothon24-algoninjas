@@ -33,6 +33,8 @@ def getMyPosition(prcSoFar):
     if nt < 2:
         return np.zeros(nins)
     
+    initialPrices = prcSoFar[:, 0]
+    
     prcSoFar_df = pd.DataFrame(prcSoFar)
     ema = prcSoFar_df.ewm(span=20, adjust=False).mean()
     tradingPositions = (prcSoFar_df - ema).apply(np.sign)
@@ -60,5 +62,16 @@ def getMyPosition(prcSoFar):
     smoothing_factor = 0.01
     
     currentPos += (((latestTradingPositions * position_size * position_adjustment) - currentPos) * smoothing_factor).astype(int)
-    
+
+    # Apply stop-loss
+    stop_loss_percentage = 0.01  # 1% stop-loss
+    for i in range(nInst):
+        if currentPos[i] > 0:
+            stop_price = initialPrices[i] * (1 - stop_loss_percentage)
+            if prcSoFar[i, -1] <= stop_price:
+                currentPos[i] = 0  # Exit long position
+        elif currentPos[i] < 0:
+            stop_price = initialPrices[i] * (1 + stop_loss_percentage)
+            if prcSoFar[i, -1] >= stop_price:
+                currentPos[i] = 0  # Exit short position
     return currentPos
