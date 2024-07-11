@@ -4,16 +4,7 @@ import pandas as pd
 nInst = 50
 currentPos = np.zeros(nInst)
 
-def calculate_atr(prcSoFar, window=10):
-    high = prcSoFar.max(axis=1)
-    low = prcSoFar.min(axis=1)
-    close = prcSoFar[:, -1]
-    
-    tr = np.maximum(high - low, np.maximum(abs(high - close), abs(low - close)))
-    atr = pd.Series(tr).rolling(window=window, min_periods=1).mean().values
-    return atr
-
-def calculate_rsi(prcSoFar, window=10):
+def calculate_rsi(prcSoFar, window=20):
     delta = np.diff(prcSoFar, axis=1)
     gain = np.maximum(delta, 0)
     loss = -np.minimum(delta, 0)
@@ -39,10 +30,10 @@ def getMyPosition(prcSoFar):
     tradingPositions = (prcSoFar_df - ema).apply(np.sign)
     latestTradingPositions = tradingPositions.iloc[:, -1].to_numpy()
     
-    atr = calculate_atr(prcSoFar)
+    volatility = np.array(prcSoFar).std(1)
     portfolio_equity = 10000 * 50  # Portfolio equity
     risk_per_trade = 0.01  # 1% of portfolio per trade
-    position_size = (portfolio_equity * risk_per_trade) / atr
+    position_size = (portfolio_equity * risk_per_trade) / volatility
 
     rsi = calculate_rsi(prcSoFar)
     latest_rsi = rsi[:, -1]
@@ -50,7 +41,7 @@ def getMyPosition(prcSoFar):
     overbought_threshold = 70
     oversold_threshold = 30
     position_adjustment = np.where((latest_rsi > overbought_threshold) & (latestTradingPositions < 0) |
-                                    (latest_rsi < oversold_threshold) & (latestTradingPositions > 0), 1, 0)
+                                    (latest_rsi < oversold_threshold) & (latestTradingPositions > 0), 1, 0.5)
 
 
     smoothing_factor = 0.01  # Smoothing factor
