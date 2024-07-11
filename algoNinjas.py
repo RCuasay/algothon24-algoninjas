@@ -41,7 +41,7 @@ def getMyPosition(prcSoFar):
     overbought_threshold = 70
     oversold_threshold = 30
     position_adjustment = np.where((latest_rsi > overbought_threshold) & (latestTradingPositions < 0) |
-                                    (latest_rsi < oversold_threshold) & (latestTradingPositions > 0), 1, 0.5)
+                                    (latest_rsi < oversold_threshold) & (latestTradingPositions > 0), 1, 1 / 3)
 
 
     smoothing_factor = 0.01  # Smoothing factor
